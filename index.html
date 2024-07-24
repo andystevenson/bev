@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>blooming marvellous</title>
+  <link rel="shortcut icon" href="favicon.svg" type="image/x-icon">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <script>
+    const elementIsVisibleInViewport = (el, partiallyVisible = false) => {
+      const { top, left, bottom, right } = el.getBoundingClientRect();
+      const { innerHeight, innerWidth } = window;
+      return partiallyVisible
+        ? ((top > 0 && top < innerHeight) ||
+          (bottom > 0 && bottom < innerHeight)) &&
+        ((left > 0 && left < innerWidth) || (right > 0 && right < innerWidth))
+        : top >= 0 && left >= 0 && bottom <= innerHeight && right <= innerWidth;
+    };
+
+    // e.g. 100x100 viewport and a 10x10px element at position
+    // {top: -1, left: 0, bottom: 9, right: 10}
+    function birthday() {
+      let trigger = document.querySelector('.birthday');
+      let count = 5
+      while (count) {
+        confetti({
+          particleCount: 100,
+          startVelocity: 30,
+          spread: 360,
+          origin: {
+            x: Math.random(),
+            // since they fall down, start a bit higher than random
+            y: Math.random() - 0.2
+          }
+        });
+        count--;
+      }
+    }
+
+    setInterval(() => {
+      let trigger = document.querySelector('.birthday');
+      let visible = elementIsVisibleInViewport(trigger);
+      console.log('trigger', visible);
+      if (visible) {
+        birthday();
+      }
+    }, 500);
+  </script>
+  <style>
+    :root {
+      --cover-size: 15rem;
+
+      @media (max-width: 1024px) {
+        --cover-size: 9rem;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      --cover-size: 9rem;
+      height: 100%;
+      width: 100%;
+      background: #111;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      gap: 1em;
+      place-content: safe center;
+      overscroll-behavior: contain;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      font-size: 2em;
+      color: #fff;
+      text-align: center;
+    }
+
+    @keyframes adjust-z-index {
+      0% {
+        z-index: 1;
+      }
+
+      50% {
+        z-index: 100;
+        /* When at the center, be on top */
+      }
+
+      100% {
+        z-index: 1;
+      }
+    }
+
+    /* Animation that rotates the cover */
+    @keyframes rotate-cover {
+      0% {
+        transform: translateX(-100%) rotateY(-45deg);
+      }
+
+      35% {
+        transform: translateX(0) rotateY(-45deg);
+      }
+
+      50% {
+        transform: rotateY(0deg) translateZ(1em) scale(1.5);
+      }
+
+      65% {
+        transform: translateX(0) rotateY(45deg);
+      }
+
+      100% {
+        transform: translateX(100%) rotateY(45deg);
+      }
+    }
+
+    .cards {
+      font-family: sans-serif;
+      scroll-snap-type: x mandatory;
+      box-sizing: border-box;
+      list-style: none;
+      overflow-x: scroll;
+      white-space: nowrap;
+      /* outline: 1px solid #333; */
+      background: rgba(0 0 0 / 0.5);
+      --size: 6;
+      min-height: calc(var(--cover-size) * 2.5);
+      width: calc(var(--cover-size) * var(--size));
+      margin: 0 auto;
+      padding: calc(var(--cover-size) / 3 * 2) 0;
+      position: relative;
+      max-width: 90vw;
+    }
+
+    .cards li {
+      display: inline-block;
+      scroll-snap-align: center;
+      /* Track this element as it intersects the scrollport */
+      view-timeline-name: --li-in-and-out-of-view;
+      view-timeline-axis: inline;
+
+      /* Link an animation to the established view-timeline and have it run during the contain phase */
+      animation: linear adjust-z-index both;
+      animation-timeline: --li-in-and-out-of-view;
+
+      /* Make the 3D stuff work… */
+      perspective: 40em;
+
+      position: relative;
+      z-index: 1;
+      will-change: z-index;
+
+      user-select: none;
+    }
+
+    .cards li>img {
+      /* Link an animation to the established view-timeline (of the parent li) and have it run during the contain phase */
+      animation: linear rotate-cover both;
+      animation-timeline: --li-in-and-out-of-view;
+
+      /* Prevent FOUC */
+      transform: translateX(-100%) rotateY(-45deg);
+
+      will-change: transform;
+    }
+
+    .cards li img {
+      display: block;
+      width: var(--cover-size);
+      height: var(--cover-size);
+      -webkit-box-reflect: below 0.5em linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.25));
+    }
+
+
+    @keyframes sticky-parallax-header-move-and-size {
+      from {
+        background-position: 50% 0;
+      }
+
+      to {
+        background-position: 50% 100%;
+        background-color: #D78BB1;
+        height: 10vh;
+        font-size: 2em;
+      }
+    }
+
+    #sticky-parallax-header {
+      position: fixed;
+      top: 0;
+
+      animation: sticky-parallax-header-move-and-size linear forwards;
+      animation-timeline: scroll();
+      animation-range: 0vh 90vh;
+      z-index: 999;
+    }
+
+    body {
+      padding-top: 100vh;
+    }
+
+    #sticky-parallax-header {
+      position: fixed;
+      top: 0;
+      animation: sticky-parallax-header-move-and-size linear forwards;
+      animation-timeline: scroll();
+      animation-range: 0vh 90vh;
+    }
+
+
+    #sticky-parallax-header {
+      color: #fff;
+      height: 100vh;
+      width: 100%;
+      background-image: url(/images/bg.jpeg);
+      background-size: cover;
+      background-position: 50% 50%;
+      background-blend-mode: soft-light;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      font-size: calc(4vw + 1em);
+    }
+
+    main {
+      margin-block-start: 5vh;
+      display: grid;
+      gap: 1em;
+      padding: 1em;
+    }
+
+    .scrolling-gallery {
+      color: #fff;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1em;
+      place-items: center;
+      border: 1px solid antiquewhite;
+      border-radius: 5px;
+      padding: 1em;
+
+      >* {
+        flex-grow: 1;
+      }
+    }
+
+    .scrolling-columns {
+      color: antiquewhite;
+      display: grid;
+      gap: 1em;
+      place-content: center;
+      padding: 1em;
+      border: 1px solid antiquewhite;
+      border-radius: 5px;
+
+      h2 {
+        font-size: 2rem;
+        text-align: center;
+      }
+    }
+
+    .columns {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+        "Segoe UI Symbol";
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2em;
+      width: 100%;
+      max-width: 80em;
+      margin: 0 auto;
+      position: relative;
+      overflow-y: hidden;
+    }
+
+    .column {
+      --column-offset: 10vh;
+      display: flex;
+      flex-direction: column;
+      gap: 1em;
+      padding: var(--column-offset) 0;
+    }
+
+    .column-reverse {
+      flex-direction: column-reverse;
+      animation: adjust-position linear forwards;
+      animation-timeline: scroll(root block);
+    }
+
+
+    .column__item-imgwrap img {
+      border-radius: 1em;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 0.75;
+      object-fit: cover;
+    }
+
+    .column__item-caption {
+      font-size: 1.5rem;
+      color: #fff;
+      text-align: center;
+    }
+
+    /* Set up Animation */
+    @keyframes adjust-position {
+
+      /* Start position: shift entire column up, but not so that it goes out of view */
+      from {
+        transform: translateY(calc(-100% + 100vh));
+      }
+
+      /* End position: shift entire column down, but not so that it goes out of view */
+      to {
+        transform: translateY(calc(100% - 100vh));
+      }
+    }
+
+    .celebration {
+      display: grid;
+      place-items: center;
+      gap: 1em;
+      margin-block-end: 2vh;
+    }
+
+    .birthday {
+      padding: 1em;
+
+      img {
+        max-inline-size: 90vw;
+        max-block-size: 70vh;
+        margin: 0 auto;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header id="sticky-parallax-header">blooming marvellous</header>
+  <main>
+    <section class="scrolling-gallery">
+      <h1>stunning floral designs 🌸</h1>
+      <ul class="cards">
+        <li>
+          <img draggable="false" src="/images/1.jpeg" width="1200" height="1200">
+        </li>
+        <li>
+          <img draggable="false" src="/images/2.jpeg" width="1200" height="1200">
+        </li>
+        <li>
+          <img draggable="false" src="/images/3.jpeg" width="1200" height="1200">
+        </li>
+        <li>
+          <img draggable="false" src="/images/4.jpeg" width="1200" height="1200">
+        </li>
+        <li>
+          <img draggable="false" src="/images/5.jpeg" width="1200" height="1200">
+        </li>
+        <li>
+          <img draggable="false" src="/images/6.jpeg" width="1200" height="1200">
+        </li>
+        <li>
+          <img draggable="false" src="/images/7.jpeg" width="1200" height="1200">
+        </li>
+        <li>
+          <img draggable="false" src="/images/8.jpeg" width="1200" height="1200">
+        </li>
+        <li>
+          <img draggable="false" src="/images/9.jpeg" width="1200" height="1200">
+        </li>
+        <li>
+          <img draggable="false" src="/images/10.jpeg" width="1200" height="1200">
+        </li>
+        <li>
+          <img draggable="false" src="/images/11.jpeg" width="1200" height="1200">
+        </li>
+        <li>
+          <img draggable="false" src="/images/12.jpeg" width="1200" height="1200">
+        </li>
+        <li>
+          <img draggable="false" src="/images/13.jpeg" width="1200" height="1200">
+        </li>
+        <li>
+          <img draggable="false" src="/images/14.jpeg" width="1200" height="1200">
+        </li>
+        <li>
+          <img draggable="false" src="/images/15.jpeg" width="1200" height="1200">
+        </li>
+        <li>
+          <img draggable="false" src="/images/16.jpeg" width="1200" height="1200">
+        </li>
+        <li>
+          <img draggable="false" src="/images/17.jpeg" width="1200" height="1200">
+        </li>
+        <li>
+          <img draggable="false" src="/images/18.jpeg" width="1200" height="1200">
+        </li>
+        <li>
+          <img draggable="false" src="/images/19.jpeg" width="1200" height="1200">
+        </li>
+        <li>
+          <img draggable="false" src="/images/20.jpeg" width="1200" height="1200">
+        </li>
+        <li>
+          <img draggable="false" src="/images/21.jpeg" width="1200" height="1200">
+        </li>
+        <li>
+          <img draggable="false" src="/images/22.jpeg" width="1200" height="1200">
+        </li>
+        <li>
+          <img draggable="false" src="/images/23.jpeg" width="1200" height="1200">
+        </li>
+        <li>
+          <img draggable="false" src="/images/24.jpeg" width="1200" height="1200">
+        </li>
+        <li>
+          <img draggable="false" src="/images/25.jpeg" width="1200" height="1200">
+        </li>
+        <li>
+          <img draggable="false" src="/images/26.jpeg" width="1200" height="1200">
+        </li>
+        <li>
+          <img draggable="false" src="/images/27.jpeg" width="1200" height="1200">
+        </li>
+        <li>
+          <img draggable="false" src="/images/28.jpeg" width="1200" height="1200">
+        </li>
+      </ul>
+    </section>
+
+    <section class="scrolling-columns">
+      <h2>matching every occasion 🌸</h2>
+
+      <div class="columns">
+        <div class="column column-reverse">
+          <figure class="column__item">
+            <div class="column__item-imgwrap">
+              <img src="/images/1.jpeg" alt="" title="" height="" width="">
+            </div>
+            <figcaption class="column__item-caption"><span>Flower Box</span></figcaption>
+          </figure>
+          <figure class="column__item">
+            <div class="column__item-imgwrap">
+              <img src="/images/2.jpeg" alt="" title="" height="" width="">
+            </div>
+            <figcaption class="column__item-caption"> <span>Birthday</span></figcaption>
+          </figure>
+          <figure class="column__item">
+            <div class="column__item-imgwrap">
+              <img src="/images/3.jpeg" alt="" title="" height="" width="">
+            </div>
+            <figcaption class="column__item-caption"> <span>Anniversary</span></figcaption>
+          </figure>
+          <figure class="column__item">
+            <div class="column__item-imgwrap">
+              <img src="/images/4.jpeg" alt="" title="" height="" width="">
+            </div>
+            <figcaption class="column__item-caption"><span>Corsage</span></figcaption>
+          </figure>
+          <figure class="column__item">
+            <div class="column__item-imgwrap">
+              <img src="/images/5.jpeg" alt="" title="" height="" width="">
+            </div>
+            <figcaption class="column__item-caption"><span>Celebration</span></figcaption>
+          </figure>
+          <figure class="column__item">
+            <div class="column__item-imgwrap">
+              <img src="/images/6.jpeg" alt="" title="" height="" width="">
+            </div>
+            <figcaption class="column__item-caption"><span>Welcome</span></figcaption>
+          </figure>
+          <figure class="column__item">
+            <div class="column__item-imgwrap">
+              <img src="/images/7.jpeg" alt="" title="" height="" width="">
+            </div>
+            <figcaption class="column__item-caption"><span>Mum's Favourite</span></figcaption>
+          </figure>
+          <figure class="column__item">
+            <div class="column__item-imgwrap">
+              <img src="/images/8.jpeg" alt="" title="" height="" width="">
+            </div>
+            <figcaption class="column__item-caption"><span>Thank You</span></figcaption>
+          </figure>
+        </div>
+        <div class="column">
+          <figure class="column__item">
+            <div class="column__item-imgwrap">
+              <img src="/images/9.jpeg" alt="" title="" height="" width="">
+            </div>
+            <figcaption class="column__item-caption"><span>New Born Welcome</span></figcaption>
+          </figure>
+          <figure class="column__item">
+            <div class="column__item-imgwrap">
+              <img src="/images/10.jpeg" alt="" title="" height="" width="">
+            </div>
+            <figcaption class="column__item-caption"> <span>Good Earth</span></figcaption>
+          </figure>
+          <figure class="column__item">
+            <div class="column__item-imgwrap">
+              <img src="/images/11.jpeg" alt="" title="" height="" width="">
+            </div>
+            <figcaption class="column__item-caption"><span>Empty Words</span></figcaption>
+          </figure>
+          <figure class="column__item">
+            <div class="column__item-imgwrap">
+              <img src="/images/12.jpeg" alt="" title="" height="" width="">
+            </div>
+            <figcaption class="column__item-caption"><span>Sorry</span></figcaption>
+          </figure>
+          <figure class="column__item">
+            <div class="column__item-imgwrap">
+              <img src="/images/13.jpeg" alt="" title="" height="" width="">
+            </div>
+            <figcaption class="column__item-caption"><span>Commiserations</span></figcaption>
+          </figure>
+          <figure class="column__item">
+            <div class="column__item-imgwrap">
+              <img src="/images/14.jpeg" alt="" title="" height="" width="">
+            </div>
+            <figcaption class="column__item-caption"><span>Stunner</span></figcaption>
+          </figure>
+          <figure class="column__item">
+            <div class="column__item-imgwrap">
+              <img src="/images/15.jpeg" alt="" title="" height="" width="">
+            </div>
+            <figcaption class="column__item-caption"><span>Coronation</span></figcaption>
+          </figure>
+          <figure class="column__item">
+            <div class="column__item-imgwrap">
+              <img src="/images/16.jpeg" alt="" title="" height="" width="">
+            </div>
+            <figcaption class="column__item-caption"><span>Picnic</span></figcaption>
+          </figure>
+        </div>
+        <div class="column column-reverse">
+          <figure class="column__item">
+            <div class="column__item-imgwrap">
+              <img src="/images/17.jpeg" alt="" title="" height="" width="">
+            </div>
+            <figcaption class="column__item-caption"><span>Dinner Invite</span></figcaption>
+          </figure>
+          <figure class="column__item">
+            <div class="column__item-imgwrap">
+              <img src="/images/18.jpeg" alt="" title="" height="" width="">
+            </div>
+            <figcaption class="column__item-caption"><span>Guest Appearance</span></figcaption>
+          </figure>
+          <figure class="column__item">
+            <div class="column__item-imgwrap">
+              <img src="/images/19.jpeg" alt="" title="" height="" width="">
+            </div>
+            <figcaption class="column__item-caption"><span>Lonely Man</span></figcaption>
+          </figure>
+          <figure class="column__item">
+            <div class="column__item-imgwrap">
+              <img src="/images/20.jpeg" alt="" title="" height="" width="">
+            </div>
+            <figcaption class="column__item-caption"><span>Last Minute Shop!</span></figcaption>
+          </figure>
+          <figure class="column__item">
+            <div class="column__item-imgwrap">
+              <img src="/images/21.jpeg" alt="" title="" height="" width="">
+            </div>
+            <figcaption class="column__item-caption"> <span>Valley Hill</span> <span>2018</span> </figcaption>
+          </figure>
+          <figure class="column__item">
+            <div class="column__item-imgwrap">
+              <img src="/images/22.jpeg" alt="" title="" height="" width="">
+            </div>
+            <figcaption class="column__item-caption"><span>Serious Apology</span></figcaption>
+          </figure>
+          <figure class="column__item">
+            <div class="column__item-imgwrap">
+              <img src="/images/23.jpeg" alt="" title="" height="" width="">
+            </div>
+            <figcaption class="column__item-caption"><span>Fake Cake</span></figcaption>
+          </figure>
+          <figure class="column__item">
+            <div class="column__item-imgwrap">
+              <img src="/images/24.jpeg" alt="" title="" height="" width="">
+            </div>
+            <figcaption class="column__item-caption"><span>Book Award</span></figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+  </main>
+  <section class="celebration">
+    <button class="birthday" onclick="birthday()">
+      <img src="/images/birthday.jpeg" alt="" srcset="">
+    </button>
+  </section>
+</body>
+
+</html>
