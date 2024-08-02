@@ -27,28 +27,18 @@ body {
   height: 100%;
   width: 100%;
   font-family: sans-serif;
+  display: flex;
+  flex-direction: column;
   gap: 1em;
+  place-content: safe center;
   overscroll-behavior: contain;
   box-sizing: border-box;
-  color: antiquewhite;
 }
 
 h1 {
   font-size: 2em;
+  color: #fff;
   text-align: center;
-}
-
-#landing {
-  inline-size: 100%;
-  block-size: 100dvh;
-  background-image: url(/images/bg.jpeg);
-  background-size: cover;
-  background-position: 50% 50%;
-  background-blend-mode: soft-light;
-  display: grid;
-  place-items: center;
-  text-align: center;
-  font-size: calc(4vw + 1em);
 }
 
 @keyframes adjust-z-index {
@@ -86,33 +76,6 @@ h1 {
 
   100% {
     transform: translateX(100%) rotateY(45deg);
-  }
-}
-
-main {
-  display: grid;
-  gap: 1em;
-  place-content: safe center;
-  padding-block-start: 1em;
-
-  > * {
-    max-width: max(80em, 80vw);
-    width: 100%;
-    margin-inline: 1em;
-    padding: 1em;
-    margin: 0 auto;
-    border: 1px solid antiquewhite;
-    border-radius: 5px;
-  }
-}
-.scrolling-gallery {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1em;
-  place-items: center;
-
-  > * {
-    flex-grow: 1;
   }
 }
 
@@ -159,16 +122,14 @@ main {
 }
 
 .cards li > img {
-  @supports (animation-timeline: --li-in-and-out-of-view) {
-    /* Link an animation to the established view-timeline (of the parent li) and have it run during the contain phase */
-    animation: linear rotate-cover both;
-    animation-timeline: --li-in-and-out-of-view;
+  /* Link an animation to the established view-timeline (of the parent li) and have it run during the contain phase */
+  animation: linear rotate-cover both;
+  animation-timeline: --li-in-and-out-of-view;
 
-    /* Prevent FOUC */
-    transform: translateX(-100%) rotateY(-45deg);
+  /* Prevent FOUC */
+  transform: translateX(-100%) rotateY(-45deg);
 
-    will-change: transform;
-  }
+  will-change: transform;
 }
 
 .cards li img {
@@ -185,6 +146,70 @@ main {
 
 .cards li:last-of-type {
   margin-right: calc(50% - (var(--cover-size) / 2));
+}
+
+@keyframes sticky-parallax-header-move-and-size {
+  from {
+    background-position: 50% 0;
+  }
+
+  to {
+    background-position: 50% 100%;
+    background-color: #d78bb1;
+    height: 10vh;
+    font-size: 2em;
+  }
+}
+
+body {
+  padding-top: 100vh;
+}
+
+#sticky-parallax-header {
+  @supports (animation-range: 0vh 90vh) {
+    position: fixed;
+    top: 0;
+    animation: sticky-parallax-header-move-and-size linear forwards;
+    animation-timeline: scroll();
+    animation-range: 0vh 90vh;
+    z-index: 999;
+  }
+
+  color: #fff;
+  height: 100vh;
+  width: 100%;
+  background-image: url(/images/bg.jpeg);
+  background-size: cover;
+  background-position: 50% 50%;
+  background-blend-mode: soft-light;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  font-size: calc(4vw + 1em);
+}
+
+main {
+  background-color: inherit;
+  margin-block-start: 1em;
+  display: grid;
+  gap: 2em;
+  padding: 1em;
+  color: antiquewhite;
+  --animation-range: entry 10% cover 30%;
+}
+
+.scrolling-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em;
+  place-items: center;
+  border: 1px solid antiquewhite;
+  border-radius: 5px;
+  padding: 1em;
+
+  > * {
+    flex-grow: 1;
+  }
 }
 
 .scrolling-columns {
@@ -257,58 +282,41 @@ main {
   }
 }
 
-.contact {
+.celebration {
   display: grid;
-  gap: 1em;
   place-items: center;
+  gap: 1em;
+  margin-block-end: 2vh;
+}
 
-  h3 {
-    max-inline-size: unset;
-    text-overflow: pretty;
+.birthday {
+  padding: 1em;
+
+  img {
+    max-inline-size: 90vw;
+    max-block-size: 70vh;
+    margin: 0 auto;
   }
+}
 
-  footer {
-    display: grid;
-    gap: 0.25em;
-    place-items: center;
-
-    div {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 0.5em;
-      a {
-        font-size: 1em;
-        color: inherit;
-      }
-    }
+@keyframes reveal {
+  from {
+    opacity: 0;
+    clip-path: inset(45% 20% 45% 20%);
   }
-
-  .fa {
-    padding: 0.5rem;
-    width: 2rem;
-    height: 2rem;
-    border-radius: var(--radius-round);
-    text-align: center;
-    text-decoration: none;
+  to {
+    opacity: 1;
+    clip-path: inset(0% 0% 0% 0%);
   }
+}
 
-  /* Add a hover effect if you want */
-  .fa:hover {
-    opacity: 0.7;
-  }
+.revealing {
+  @supports (view-timeline-name: --revealing-image) {
+    view-timeline-name: --revealing-image;
+    view-timeline-axis: block;
 
-  /* Set a specific color for each brand */
-
-  /* Facebook */
-  .fa-facebook {
-    background: #3b5998;
-    color: white;
-  }
-
-  /* Twitter */
-  .fa-instagram {
-    background: #55acee;
-    color: white;
+    animation: linear reveal both;
+    animation-timeline: --revealing-image;
+    animation-range: var(--animation-range);
   }
 }
