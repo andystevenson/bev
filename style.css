@@ -261,6 +261,7 @@ main {
   display: grid;
   gap: 1em;
   place-items: center;
+  text-align: center;
 
   h3 {
     max-inline-size: unset;
