@@ -111,6 +111,9 @@ main {
   gap: 1em;
   place-items: center;
 
+  h1 {
+    max-inline-size: unset;
+  }
   > * {
     flex-grow: 1;
   }
@@ -241,7 +244,6 @@ main {
 
 .column__item-caption {
   font-size: 1.5rem;
-  color: #fff;
   text-align: center;
 }
 
@@ -304,12 +306,10 @@ main {
   /* Facebook */
   .fa-facebook {
     background: #3b5998;
-    color: white;
   }
 
   /* Twitter */
   .fa-instagram {
     background: #55acee;
-    color: white;
   }
 }
